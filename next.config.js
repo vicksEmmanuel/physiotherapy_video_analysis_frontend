@@ -1,6 +1,19 @@
 const path = require('path');
 
 const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "upgrade-insecure-requests",
+          },
+        ],
+      },
+    ]
+  },
   plugins: [
     [
       '@fullhuman/postcss-purgecss',
@@ -9,7 +22,7 @@ const nextConfig = {
           './pages/**/*.{js,jsx,ts,tsx}',
           './components/**/*.{js,jsx,ts,tsx}',
         ],
-        defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+        defaultExtractor: (content) => content.match(/[\w-/:\]+(?<!:)/g) || [],
       },
     ],
     'postcss-preset-env',
@@ -27,7 +40,6 @@ const nextConfig = {
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
-
     return config;
   },
   sassOptions: {
@@ -35,7 +47,7 @@ const nextConfig = {
   },
   output: 'standalone',
   compress: true,
-  matcher: ['/((?!api|_next|.*\\..*).*)'],
+  matcher: ['/((?!api|_next|.*\\..*).*)', process.env.BUILD_ID],
 };
 
 module.exports = nextConfig;
