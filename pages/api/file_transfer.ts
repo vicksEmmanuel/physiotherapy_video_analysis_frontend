@@ -1,7 +1,12 @@
-import { IncomingForm } from 'formidable';
+import formidable, { File } from 'formidable';
 import fs from 'fs';
 import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
+
+const form = formidable({ multiples: true });
+
+const isFile = (file: File | File[]): file is File =>
+  !Array.isArray(file) && file.filepath !== undefined;
 
 export const config = {
   api: {
@@ -14,48 +19,51 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const form = new IncomingForm({
-    maxFileSize: 1000 * 1024 * 1024, // 1GB file size limit
-  });
+  try {
+    const fileContent: string = await new Promise((resolve, reject) => {
+      form.parse(req, async (err, _fields, files) => {
+        const file = files.video;
+        if (!file && !isEmpty(file)) {
+          return reject('No file uploaded');
+        }
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Error');
-    }
+        const realfile = (file as any)[0];
+        const fileBuffer = fs.readFileSync(realfile.filepath);
 
-    const file = files.video;
-    if (!file && !isEmpty(file)) {
-      return res.status(400).send('No file uploaded');
-    }
+        const formData = new FormData();
+        const videoBlob = new Blob([fileBuffer], {
+          type: 'video/mp4',
+        }); // Adjust the MIME type as needed
 
-    const realfile = (file as any)[0];
-    const fileBuffer = fs.readFileSync(realfile.filepath);
+        formData.append(
+          'video',
+          videoBlob,
+          `${Date.now()}${realfile.originalFilename}`
+        );
 
-    res.status(200).json({ file: realfile, fields });
+        try {
+          const proxyResponse = await fetch(
+            'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
 
-    // const formData = new FormData();
-    // const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
-    // formData.append(
-    //   'video',
-    //   videoBlob,
-    //   `${Date.now()}${realfile.originalFilename}`
-    // );
+          const response = await proxyResponse.json();
+          resolve({ ...response });
+        } catch (err) {
+          console.error(err);
+          reject(`Error ${String(err)}`);
+        }
+      });
+    });
 
-    // try {
-    //   const proxyResponse = await fetch(
-    //     'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-    //     {
-    //       method: 'POST',
-    //       body: formData,
-    //     }
-    //   );
+    // Do whatever you'd like with the file since it's already in text
+    console.log(fileContent);
 
-    //   const response = await proxyResponse.json();
-    //   res.status(200).json({ ...response });
-    // } catch (err) {
-    //   console.error(err);
-    //   res.status(500).send(`Error ${String(err)}`);
-    // }
-  });
+    res.status(200).json(fileContent);
+  } catch (err) {
+    res.status(400).send({ message: 'Bad Request' + err });
+  }
 }
