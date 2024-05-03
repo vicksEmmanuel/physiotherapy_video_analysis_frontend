@@ -5,10 +5,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '1000mb',
-    },
-    responseLimit: false,
+    bodyParser: false,
+    responseLimit: '1000mb',
   },
 };
 
