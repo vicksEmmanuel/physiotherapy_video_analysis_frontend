@@ -2,14 +2,11 @@ import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
-const pump = promisify(pipeline);
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '1gb',
+      sizeLimit: '1000mb',
     },
     responseLimit: false,
   },
@@ -35,11 +32,7 @@ export default async function handler(
     }
 
     const realfile = (file as any)[0];
-    const fileName = Date.now() + realfile.originalFilename;
-    const filePath = `./public/file/${fileName}`;
-    await pump(realfile.stream(), fs.createWriteStream(filePath));
-
-    const fileBuffer = fs.readFileSync(filePath);
+    const fileBuffer = fs.readFileSync(realfile.filepath);
 
     const formData = new FormData();
     const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
