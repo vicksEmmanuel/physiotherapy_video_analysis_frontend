@@ -109,7 +109,7 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
                     }}
                     className="cursor-pointer text-[#007AFF] text-sm bg-[#E9F3FF] text-center py-2 rounded-md w-[150px] self-center"
                     >
-                    Import File{' '}
+                    Import and Analyze Video File{' '}
                     {isLoading && <Spinner size={'xs'} color="lightgray" />}
                     </div>
                 )}
