@@ -38,7 +38,7 @@ export default async function handler(
     fileStream.pipe(passThrough);
     formData.append(
       'video',
-      passThrough,
+      passThrough as any,
       `${Date.now()}${realfile.originalFilename}`
     );
 
@@ -47,7 +47,7 @@ export default async function handler(
         'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
         {
           method: 'POST',
-          body: formData,
+          body: formData as any,
         }
       );
 
