@@ -2,6 +2,8 @@ import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
+import fetch from 'node-fetch';
+import { PassThrough } from 'stream';
 
 export const config = {
   api: {
@@ -29,13 +31,14 @@ export default async function handler(
     }
 
     const realfile = (file as any)[0];
-    const fileBuffer = fs.readFileSync(realfile.filepath);
+    const fileStream = fs.createReadStream(realfile.filepath);
 
     const formData = new FormData();
-    const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
+    const passThrough = new PassThrough();
+    fileStream.pipe(passThrough);
     formData.append(
       'video',
-      videoBlob,
+      passThrough,
       `${Date.now()}${realfile.originalFilename}`
     );
 
