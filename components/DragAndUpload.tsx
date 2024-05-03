@@ -51,6 +51,9 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
         const response = await fetch('/api/file_transfer', {
             method: 'POST',
             body: formData,
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
         });
 
         if (response.ok) {
