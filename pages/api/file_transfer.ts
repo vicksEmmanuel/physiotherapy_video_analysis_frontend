@@ -21,42 +21,46 @@ export default async function handler(
 ) {
   try {
     const fileContent: string = await new Promise((resolve, reject) => {
-      form.parse(req, async (err, _fields, files) => {
-        const file = files.video;
-        if (!file && !isEmpty(file)) {
-          return reject('No file uploaded');
-        }
+      try {
+        form.parse(req, async (err, _fields, files) => {
+          const file = files.video;
+          if (!file && !isEmpty(file)) {
+            return reject('No file uploaded');
+          }
 
-        const realfile = (file as any)[0];
-        const fileBuffer = fs.readFileSync(realfile.filepath);
+          const realfile = (file as any)[0];
+          const fileBuffer = fs.readFileSync(realfile.filepath);
 
-        const formData = new FormData();
-        const videoBlob = new Blob([fileBuffer], {
-          type: 'video/mp4',
-        }); // Adjust the MIME type as needed
+          const formData = new FormData();
+          const videoBlob = new Blob([fileBuffer], {
+            type: 'video/mp4',
+          }); // Adjust the MIME type as needed
 
-        formData.append(
-          'video',
-          videoBlob,
-          `${Date.now()}${realfile.originalFilename}`
-        );
-
-        try {
-          const proxyResponse = await fetch(
-            'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-            {
-              method: 'POST',
-              body: formData,
-            }
+          formData.append(
+            'video',
+            videoBlob,
+            `${Date.now()}${realfile.originalFilename}`
           );
 
-          const response = await proxyResponse.json();
-          resolve({ ...response });
-        } catch (err) {
-          console.error(err);
-          reject(`Error ${String(err)}`);
-        }
-      });
+          try {
+            const proxyResponse = await fetch(
+              'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
+              {
+                method: 'POST',
+                body: formData,
+              }
+            );
+
+            const response = await proxyResponse.json();
+            resolve({ ...response });
+          } catch (err) {
+            console.error(err);
+            reject(`Error ${String(err)}`);
+          }
+        });
+      } catch (e) {
+        reject(`Error ${String(e)}`);
+      }
     });
 
     // Do whatever you'd like with the file since it's already in text
