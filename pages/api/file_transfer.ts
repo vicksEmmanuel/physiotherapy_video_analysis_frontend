@@ -1,83 +1,68 @@
+import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import { NextApiResponse } from 'next';
+import { isEmpty } from 'lodash';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 const pump = promisify(pipeline);
 
-export default async function handler(req: any, res: NextApiResponse) {
-  const formData = await req.formData();
-  const file = formData.getAll('video')[0];
-  const filePath = `./public/file/${file.name}`;
-  await pump(file.stream(), fs.createWriteStream(filePath));
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1gb',
+    },
+    responseLimit: false,
+  },
+};
 
-  try {
-    // const proxyResponse = await fetch(
-    //   'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-    //   {
-    //     method: 'POST',
-    //     body: formData,
-    //   }
-    // );
-    // const response = await proxyResponse.json();
-    // res.status(200).json({ ...response });
-    res.status(200).json({ message: 'File uploaded successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send(`Error ${String(err)}`);
-  }
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const form = new IncomingForm({
+    maxFileSize: 1000 * 1024 * 1024, // 1GB file size limit
+  });
+
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error');
+    }
+
+    const file = files.video;
+    if (!file && !isEmpty(file)) {
+      return res.status(400).send('No file uploaded');
+    }
+
+    const realfile = (file as any)[0];
+    const fileName = Date.now() + realfile.originalFilename;
+    const filePath = `./public/file/${fileName}`;
+    await pump(realfile.stream(), fs.createWriteStream(filePath));
+
+    const fileBuffer = fs.readFileSync(filePath);
+
+    const formData = new FormData();
+    const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
+    formData.append(
+      'video',
+      videoBlob,
+      `${Date.now()}${realfile.originalFilename}`
+    );
+
+    try {
+      const proxyResponse = await fetch(
+        'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const response = await proxyResponse.json();
+      res.status(200).json({ ...response });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send(`Error ${String(err)}`);
+    }
+  });
 }
-
-// export const config = {
-//   api: {
-//     bodyParser: false, // Disable built-in body parser
-//     responseLimit: false,
-//   },
-// };
-
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   const form = new IncomingForm({
-//     maxFileSize: 1000 * 1024 * 1024, // 1GB file size limit
-//   });
-
-//   form.parse(req, async (err, fields, files) => {
-//     if (err) {
-//       console.error(err);
-//       return res.status(500).send('Error');
-//     }
-
-//     const file = files.video;
-//     if (!file && !isEmpty(file)) {
-//       return res.status(400).send('No file uploaded');
-//     }
-
-//     const realfile = (file as any)[0];
-//     const fileBuffer = fs.readFileSync(realfile.filepath);
-
-//     const formData = new FormData();
-//     const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
-//     formData.append(
-//       'video',
-//       videoBlob,
-//       `${Date.now()}${realfile.originalFilename}`
-//     );
-
-//     try {
-//       const proxyResponse = await fetch(
-//         'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-//         {
-//           method: 'POST',
-//           body: formData,
-//         }
-//       );
-
-//       const response = await proxyResponse.json();
-//       res.status(200).json({ ...response });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).send(`Error ${String(err)}`);
-//     }
-//   });
-// }
