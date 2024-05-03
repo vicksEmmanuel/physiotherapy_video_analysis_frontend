@@ -14,6 +14,16 @@ const nextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      {
+        source: '/analysis/:path*',
+        destination: 'http://ec2-3-84-158-161.compute-1.amazonaws.com/:path*',
+      },
+    ];
+  },
+
   plugins: [
     [
       '@fullhuman/postcss-purgecss',
