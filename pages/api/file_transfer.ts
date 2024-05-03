@@ -1,4 +1,5 @@
 import formidable, { File } from 'formidable';
+import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const form = formidable({ multiples: true });
@@ -21,12 +22,12 @@ export default async function handler(
     const fileContent: string = await new Promise((resolve, reject) => {
       try {
         form.parse(req, async (err, _fields, files) => {
-          resolve('Hello World');
+          const file = files.video;
+          if (!file && !isEmpty(file)) {
+            return reject('No file uploaded');
+          }
 
-          // const file = files.video;
-          // if (!file && !isEmpty(file)) {
-          //   return reject('No file uploaded');
-          // }
+          resolve(` Hello World`);
 
           // const realfile = (file as any)[0];
           // const fileBuffer = fs.readFileSync(realfile.filepath);
