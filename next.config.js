@@ -1,29 +1,6 @@
 const path = require('path');
 
 const nextConfig = {
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: 'upgrade-insecure-requests',
-          },
-        ],
-      },
-    ];
-  },
-
-  async rewrites() {
-    return [
-      {
-        source: '/analysis/:path*',
-        destination: 'http://ec2-3-84-158-161.compute-1.amazonaws.com/:path*',
-      },
-    ];
-  },
-
   plugins: [
     [
       '@fullhuman/postcss-purgecss',
@@ -50,6 +27,7 @@ const nextConfig = {
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
+
     return config;
   },
   sassOptions: {
@@ -57,7 +35,7 @@ const nextConfig = {
   },
   output: 'standalone',
   compress: true,
-  matcher: ['/((?!api|_next|.*\\..*).*)', process.env.BUILD_ID],
+  matcher: ['/((?!api|_next|.*\\..*).*)'],
 };
 
 module.exports = nextConfig;
