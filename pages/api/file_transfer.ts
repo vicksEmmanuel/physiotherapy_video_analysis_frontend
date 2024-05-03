@@ -5,9 +5,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '1gb',
-    }, // Disable built-in body parser
+    bodyParser: false, // Disable built-in body parser
+    responseLimit: false,
   },
 };
 
