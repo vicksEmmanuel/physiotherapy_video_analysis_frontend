@@ -25,6 +25,11 @@ const nextConfig = {
   server: {
     maxPayloadSize: 1024 * 1024 * 1024, // 1GB payload size limit
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '1gb',
+    },
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
