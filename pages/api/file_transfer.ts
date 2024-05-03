@@ -52,7 +52,7 @@ export default async function handler(
       res.status(200).json({ ...response });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error');
+      res.status(500).send(`Error ${String(err)}`);
     }
   });
 }
