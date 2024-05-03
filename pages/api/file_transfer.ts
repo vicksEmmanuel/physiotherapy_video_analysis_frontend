@@ -2,8 +2,6 @@ import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
-import fetch from 'node-fetch';
-import { PassThrough } from 'stream';
 
 export const config = {
   api: {
@@ -31,14 +29,13 @@ export default async function handler(
     }
 
     const realfile = (file as any)[0];
-    const fileStream = fs.createReadStream(realfile.filepath);
+    const fileBuffer = fs.readFileSync(realfile.filepath);
 
     const formData = new FormData();
-    const passThrough = new PassThrough();
-    fileStream.pipe(passThrough);
+    const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
     formData.append(
       'video',
-      passThrough as any,
+      videoBlob,
       `${Date.now()}${realfile.originalFilename}`
     );
 
@@ -47,7 +44,7 @@ export default async function handler(
         'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
         {
           method: 'POST',
-          body: formData as any,
+          body: formData,
         }
       );
 
