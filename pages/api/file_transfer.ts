@@ -32,28 +32,30 @@ export default async function handler(
     const realfile = (file as any)[0];
     const fileBuffer = fs.readFileSync(realfile.filepath);
 
-    const formData = new FormData();
-    const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
-    formData.append(
-      'video',
-      videoBlob,
-      `${Date.now()}${realfile.originalFilename}`
-    );
+    res.status(200).json({ file: realfile, fields });
 
-    try {
-      const proxyResponse = await fetch(
-        'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
+    // const formData = new FormData();
+    // const videoBlob = new Blob([fileBuffer], { type: 'video/mp4' }); // Adjust the MIME type as needed
+    // formData.append(
+    //   'video',
+    //   videoBlob,
+    //   `${Date.now()}${realfile.originalFilename}`
+    // );
 
-      const response = await proxyResponse.json();
-      res.status(200).json({ ...response });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send(`Error ${String(err)}`);
-    }
+    // try {
+    //   const proxyResponse = await fetch(
+    //     'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
+    //     {
+    //       method: 'POST',
+    //       body: formData,
+    //     }
+    //   );
+
+    //   const response = await proxyResponse.json();
+    //   res.status(200).json({ ...response });
+    // } catch (err) {
+    //   console.error(err);
+    //   res.status(500).send(`Error ${String(err)}`);
+    // }
   });
 }
