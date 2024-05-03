@@ -58,7 +58,7 @@ const nextConfig = {
           // Add this header to disable mixed content protection
           {
             key: 'Content-Security-Policy',
-            value: 'upgrade-insecure-requests',
+            value: 'block-all-mixed-content',
           },
         ],
       },
