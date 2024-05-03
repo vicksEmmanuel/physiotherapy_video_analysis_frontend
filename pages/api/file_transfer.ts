@@ -1,4 +1,5 @@
 import formidable, { File } from 'formidable';
+import fs from 'fs';
 import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -27,10 +28,10 @@ export default async function handler(
             return reject('No file uploaded');
           }
 
-          resolve(` Hello World`);
+          const realfile = (file as any)[0];
+          const fileBuffer = fs.readFileSync(realfile.filepath);
 
-          // const realfile = (file as any)[0];
-          // const fileBuffer = fs.readFileSync(realfile.filepath);
+          resolve('Hello World');
 
           // const formData = new FormData();
           // const videoBlob = new Blob([fileBuffer], {
