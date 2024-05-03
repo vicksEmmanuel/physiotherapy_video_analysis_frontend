@@ -8,11 +8,11 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "upgrade-insecure-requests",
+            value: 'upgrade-insecure-requests',
           },
         ],
       },
-    ]
+    ];
   },
   plugins: [
     [
@@ -22,7 +22,7 @@ const nextConfig = {
           './pages/**/*.{js,jsx,ts,tsx}',
           './components/**/*.{js,jsx,ts,tsx}',
         ],
-        defaultExtractor: (content) => content.match(/[\w-/:\]+(?<!:)/g) || [],
+        defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
       },
     ],
     'postcss-preset-env',
