@@ -22,12 +22,9 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: ['192.168.0.107', 'localhost', 'nomnom-image.s3.amazonaws.com'],
   },
-  server: {
-    maxPayloadSize: 1024 * 1024 * 1024, // 1GB payload size limit
-  },
   experimental: {
     serverActions: {
-      bodySizeLimit: '1gb',
+      bodySizeLimit: '1000mb',
     },
   },
   webpack(config) {
