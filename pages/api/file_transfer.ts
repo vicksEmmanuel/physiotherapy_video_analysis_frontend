@@ -1,6 +1,4 @@
 import formidable, { File } from 'formidable';
-import fs from 'fs';
-import { isEmpty } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const form = formidable({ multiples: true });
@@ -23,40 +21,42 @@ export default async function handler(
     const fileContent: string = await new Promise((resolve, reject) => {
       try {
         form.parse(req, async (err, _fields, files) => {
-          const file = files.video;
-          if (!file && !isEmpty(file)) {
-            return reject('No file uploaded');
-          }
+          resolve('Hello World');
 
-          const realfile = (file as any)[0];
-          const fileBuffer = fs.readFileSync(realfile.filepath);
+          // const file = files.video;
+          // if (!file && !isEmpty(file)) {
+          //   return reject('No file uploaded');
+          // }
 
-          const formData = new FormData();
-          const videoBlob = new Blob([fileBuffer], {
-            type: 'video/mp4',
-          }); // Adjust the MIME type as needed
+          // const realfile = (file as any)[0];
+          // const fileBuffer = fs.readFileSync(realfile.filepath);
 
-          formData.append(
-            'video',
-            videoBlob,
-            `${Date.now()}${realfile.originalFilename}`
-          );
+          // const formData = new FormData();
+          // const videoBlob = new Blob([fileBuffer], {
+          //   type: 'video/mp4',
+          // }); // Adjust the MIME type as needed
 
-          try {
-            const proxyResponse = await fetch(
-              'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
-              {
-                method: 'POST',
-                body: formData,
-              }
-            );
+          // formData.append(
+          //   'video',
+          //   videoBlob,
+          //   `${Date.now()}${realfile.originalFilename}`
+          // );
 
-            const response = await proxyResponse.json();
-            resolve({ ...response });
-          } catch (err) {
-            console.error(err);
-            reject(`Error ${String(err)}`);
-          }
+          // try {
+          //   const proxyResponse = await fetch(
+          //     'http://ec2-3-84-158-161.compute-1.amazonaws.com/predict',
+          //     {
+          //       method: 'POST',
+          //       body: formData,
+          //     }
+          //   );
+
+          //   const response = await proxyResponse.json();
+          //   resolve({ ...response });
+          // } catch (err) {
+          //   console.error(err);
+          //   reject(`Error ${String(err)}`);
+          // }
         });
       } catch (e) {
         reject(`Error ${String(e)}`);
