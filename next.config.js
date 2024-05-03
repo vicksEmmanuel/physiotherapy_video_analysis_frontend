@@ -55,6 +55,11 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'geolocation=(self), camera=(), microphone=()',
           },
+          // Add this header to disable mixed content protection
+          {
+            key: 'Content-Security-Policy',
+            value: 'upgrade-insecure-requests',
+          },
         ],
       },
     ];
