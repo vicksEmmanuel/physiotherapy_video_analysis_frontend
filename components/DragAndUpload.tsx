@@ -48,7 +48,7 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
 
         const formData = new FormData();
         formData.append('video', file);
-        const response = await fetch('/api/file_transfer', {
+        const response = await fetch('https://us-central1-physio-tees.cloudfunctions.net/api/upload', {
             method: 'POST',
             body: formData,
             headers: {
@@ -110,7 +110,7 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
                         if (isLoading) return;
                         upload();
                     }}
-                    className="cursor-pointer text-[#007AFF] text-sm bg-[#E9F3FF] text-center py-2 rounded-md w-[150px] self-center"
+                    className="cursor-pointer text-[#007AFF] text-sm bg-[#E9F3FF] text-center py-2 rounded-md w-[200px] self-center"
                     >
                     Import and Analyze Video File{' '}
                     {isLoading && <Spinner size={'xs'} color="lightgray" />}
