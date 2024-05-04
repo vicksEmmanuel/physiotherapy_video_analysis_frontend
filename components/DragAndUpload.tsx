@@ -55,6 +55,7 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
 
         if (response.ok) {
             setValue?.(await response.json())
+            setFile(undefined);
         } else {
             toast({
                 title: "Something went wrong",
