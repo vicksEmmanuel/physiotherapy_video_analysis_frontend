@@ -51,9 +51,6 @@ const DragAndUpload = ({isLoading, setIsLoading, setValue}: {
         const response = await fetch('https://us-central1-physio-tees.cloudfunctions.net/api/upload', {
             method: 'POST',
             body: formData,
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
         });
 
         if (response.ok) {
